@@ -13,8 +13,10 @@ logger = logging.getLogger('log')
 
 def register(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        password = request.POST.get("password")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        name = body["name"]
+        password = body["password"]
         logger.info(f"[register] Registering user: {name}")
         if User.objects.filter(name=name).exists():
             logger.info(f"[register] User already exists: {name}")
