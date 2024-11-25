@@ -18,7 +18,7 @@ from wxcloudrun import views
 from django.urls import path
 
 urlpatterns = [
-    path("api/user/register/", views.register),
+    path("api/user/register", views.register),
     path("api/user/login", views.login),
     path("api/detect/detect", views.detect),
     path("api/detect/comment", views.comment),
