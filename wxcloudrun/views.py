@@ -13,6 +13,7 @@ def register(request):
     if request.method == "POST":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
+        logger.info(f"[register] Registering user body: {body}")
         name = body["name"]
         password = body["password"]
         logger.info(f"[register] Registering user: {name}")
