@@ -1,11 +1,9 @@
 import json
 import logging
 
-from django.shortcuts import render
 from wxcloudrun.models import Result, User
 from django.http import JsonResponse
 import datetime
-import time
 from wxcloudrun.settings import SECRET_KEY
 
 
@@ -39,8 +37,10 @@ def register(request):
 
 def login(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        password = request.POST.get("password")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        name = body["name"]
+        password = body["password"]
         logger.info(f"[login] Logging in user: {name}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[login] User does not exist: {name}")
@@ -68,9 +68,11 @@ def login(request):
 
 def detect(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        result = request.POST.get("result")
-        detail = request.POST.get("detail")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        name = body["name"]
+        result = body["result"]
+        detail = body["detail"]
         logger.info(f"[detect] Detection result: {name} {result} {detail}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[detect] User does not exist: {name}")
@@ -78,22 +80,17 @@ def detect(request):
                 "code": 400,
                 "message": "User does not exist"
             })
-
         current_time = datetime.datetime.now()
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
-
         save_path = f"media/{name}_{save_name}/"
-
         record = Result(name=name, result=0, detail="检测中", comment="", save_path=save_path, time=current_time)
         record.save()
-
         try:
             record.result = result
             record.detail = str(detail)
             record.save()
             logger.info(f"[detect] Detection success: {name} {result} {detail}")
-            
             return JsonResponse({
                 "code": 200,
                 "time": current_time,
@@ -115,8 +112,10 @@ def detect(request):
 
 def history(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        page = int(request.POST.get("page", 1))
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        name = body["name"]
+        page = body["page"] if "page" in body else 1
         logger.info(f"[history] Requesting history for {name} page {page}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[history] User does not exist: {name}")
@@ -124,11 +123,9 @@ def history(request):
                 "code": 400,
                 "message": "User does not exist"
             })
-
         results = Result.objects.filter(name=name).order_by("-time")
         total = results.count()
         results = results[(page - 1) * 10:page * 10]
-
         return JsonResponse({
             "code": 200,
             "total": total,
@@ -150,8 +147,10 @@ def history(request):
 
 def comment(request):
     if request.method == "POST":
-        id = request.POST.get("id")
-        comment = request.POST.get("comment")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        id = body["id"]
+        comment = body["comment"]
         logger.info(f"[comment] Commenting on result {id}")
         if not Result.objects.filter(id=id).exists():
             logger.info(f"[comment] Result does not exist: {id}")
@@ -159,13 +158,10 @@ def comment(request):
                 "code": 400,
                 "message": "Result does not exist"
             })
-
         record = Result.objects.filter(id=id).first()
         record.comment = comment
         record.save()
-        
         logger.info(f"[comment] Comment success: {id}")
-
         return JsonResponse({
             "code": 200,
             "message": "Comment success"
@@ -180,7 +176,9 @@ def comment(request):
 # 内部接口
 def clear(request):
     if request.method == "POST":
-        secret_key = request.POST.get("secret_key")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        secret_key = body["secret_key"]
         logger.warning(f"[clear] Clearing all results with secret key {secret_key}")
         if secret_key != SECRET_KEY:
             return JsonResponse({
@@ -194,11 +192,13 @@ def clear(request):
             "code": 400,
             "message": "Invalid request"
         })
-        
+
 
 def get_all(request):
     if request.method == "POST":
-        secret_key = request.POST.get("secret_key")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        secret_key = body["secret_key"]
         logger.warning(f"[get_all] Requesting all results with secret key {secret_key}")
         if secret_key != SECRET_KEY:
             return JsonResponse({
