@@ -5,6 +5,8 @@ from wxcloudrun.models import Result, User
 from django.http import JsonResponse
 import datetime
 from wxcloudrun.settings import SECRET_KEY
+from wxcloudrun.Detect import detect
+from wxcloudrun.Download import DownloadImage
 
 
 logger = logging.getLogger('log')
@@ -72,9 +74,8 @@ def detect(request):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
         name = body["name"]
-        result = body["result"]
-        detail = body["detail"]
-        logger.info(f"[detect] Detection result: {name} {result} {detail}")
+        fileID = body["fileID"]
+        logger.info(f"[detect] Detection result: {name}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[detect] User does not exist: {name}")
             return JsonResponse({
@@ -85,9 +86,12 @@ def detect(request):
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
         save_path = f"media/{name}_{save_name}/"
-        record = Result(name=name, result=0, detail="检测中", comment="", save_path=save_path, time=current_time)
+        record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time)
         record.save()
         try:
+            downloadImage = DownloadImage()
+            downloadImage.get(fileID, save_path)
+            result, detail = detect(save_path)
             record.result = result
             record.detail = str(detail)
             record.save()
@@ -99,7 +103,7 @@ def detect(request):
                 "detail": detail,
             })
         except Exception as e:
-            logger.error(f"[detect] Detection failed: {name} {result} {detail} {str(e)}")
+            logger.error(f"[detect] Detection failed: {name} {str(e)}")
             return JsonResponse({
                 "code": 500,
                 "message": str(e)
