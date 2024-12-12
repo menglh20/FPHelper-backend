@@ -7,6 +7,7 @@ import datetime
 from wxcloudrun.settings import SECRET_KEY
 # from wxcloudrun.Detect import detect
 # from wxcloudrun.Download import DownloadImage
+import requests
 
 
 logger = logging.getLogger('log')
@@ -96,7 +97,7 @@ def detect(request):
                 'name': name,
                 'fileID': fileID
             }
-            response = request.post("http://123.56.218.127/api/detect/detect/", json=data)
+            response = requests.post("http://123.56.218.127/api/detect/detect/", json=data)
             logger.info(f"[detect] recieve response from http://123.56.218.127/api/detect/detect: " + response.text)
             res = response.data
             res = json.loads(res)
