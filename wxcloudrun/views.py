@@ -5,8 +5,8 @@ from wxcloudrun.models import Result, User
 from django.http import JsonResponse
 import datetime
 from wxcloudrun.settings import SECRET_KEY
-from wxcloudrun.Detect import detect
-from wxcloudrun.Download import DownloadImage
+# from wxcloudrun.Detect import detect
+# from wxcloudrun.Download import DownloadImage
 
 
 logger = logging.getLogger('log')
