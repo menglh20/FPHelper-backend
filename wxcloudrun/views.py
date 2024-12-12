@@ -89,11 +89,19 @@ def detect(request):
         record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time)
         record.save()
         try:
-            downloadImage = DownloadImage()
-            downloadImage.get(fileID, save_path)
-            result, detail = detect(save_path)
+            # downloadImage = DownloadImage()
+            # downloadImage.get(fileID, save_path)
+            # result, detail = detect(save_path)
+            data = {
+                'name': name,
+                'fileID': fileID
+            }
+            response = request.post("http://123.56.218.127/api/detect/detect", data)
+            res = response.data
+            res = json.loads(res)
+            result, detail = res["result"], res["detail"]
             record.result = result
-            record.detail = str(detail)
+            record.detail = detail
             record.save()
             logger.info(f"[detect] Detection success: {name} {result} {detail}")
             return JsonResponse({
