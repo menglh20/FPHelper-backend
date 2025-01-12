@@ -113,8 +113,7 @@ def detect(request):
                 "detail": detail,
             })
         except Exception as e:
-            record.detail = str(e)
-            record.save()
+            record.delete()
             logger.error(f"[detect] Detection failed: {name} {str(e)}")
             return JsonResponse({
                 "code": 500,
