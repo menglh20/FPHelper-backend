@@ -21,6 +21,7 @@ urlpatterns = [
     path("api/user/register", views.register),
     path("api/user/login", views.login),
     path("api/detect/detect", views.detect),
+    path("api/detect/detect_by_video", views.detect_by_video),
     path("api/detect/comment", views.comment),
     path("api/detect/history", views.history),
     path("api/detect/get_all", views.get_all),

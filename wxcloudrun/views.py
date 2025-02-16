@@ -126,6 +126,59 @@ def detect(request):
         })
 
 
+def detect_by_video(request):
+    if request.method == "POST":
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        name = body["name"]
+        fileID = body["fileID"]
+        logger.info(f"[detect_by_video] Detection result: {name}")
+        if not User.objects.filter(name=name).exists():
+            logger.info(f"[detect_by_video] User does not exist: {name}")
+            return JsonResponse({
+                "code": 400,
+                "message": "User does not exist"
+            })
+        current_time = datetime.datetime.now()
+        current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
+        save_name = current_time.replace(".", "").replace(":", "")
+        save_path = f"media/{name}_{save_name}/"
+        record = Result(name=name, result=0, detail="下载视频中", comment="", save_path=save_path, time=current_time)
+        record.save()
+        try:
+            data = {
+                'name': name,
+                'fileID': fileID
+            }
+            response = requests.post("http://123.56.218.127/api/detect/detect_by_video/", json=data)
+            logger.info(f"[detect_by_video] recieve response from http://123.56.218.127/api/detect/detect_by_video: " + response.text)
+            # res = response.data
+            res = json.loads(response.text)
+            result, detail = res["result"], res["detail"]
+            record.result = result
+            record.detail = detail
+            record.save()
+            logger.info(f"[detect_by_video] Detection success: {name} {result} {detail}")
+            return JsonResponse({
+                "code": 200,
+                "time": current_time,
+                "result": result,
+                "detail": detail,
+            })
+        except Exception as e:
+            record.delete()
+            logger.error(f"[detect_by_video] Detection failed: {name} {str(e)}")
+            return JsonResponse({
+                "code": 500,
+                "message": str(e)
+            })
+    else:
+        return JsonResponse({
+            "code": 400,
+            "message": "Invalid request"
+        })
+
+
 def history(request):
     if request.method == "POST":
         body_unicode = request.body.decode('utf-8')
