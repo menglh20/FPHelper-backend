@@ -108,6 +108,7 @@ def detect(request):
             logger.info(f"[detect] Detection success: {name} {result} {detail}")
             return JsonResponse({
                 "code": 200,
+                "id": record.id,
                 "time": current_time,
                 "result": result,
                 "detail": detail,
@@ -161,6 +162,7 @@ def detect_by_video(request):
             logger.info(f"[detect_by_video] Detection success: {name} {result} {detail}")
             return JsonResponse({
                 "code": 200,
+                "id": record.id,
                 "time": current_time,
                 "result": result,
                 "detail": detail,
