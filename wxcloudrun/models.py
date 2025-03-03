@@ -18,8 +18,8 @@ class Result(models.Model):
     comment = models.CharField(max_length=1000)
     save_path = models.CharField(max_length=1000)
     time = models.CharField(max_length=1000)
-    type = models.CharField(max_length=50)
-    fileId = models.CharField(max_length=1000)
+    type = models.CharField(max_length=50, default="image")
+    fileId = models.CharField(max_length=1000, default="none")
 
     def __str__(self):
         return str(self.id) + " " + self.name + " " + str(self.result) + " " + self.time
