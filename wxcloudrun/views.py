@@ -87,7 +87,7 @@ def detect(request):
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
         save_path = f"media/{name}_{save_name}/"
-        record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time)
+        record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time, type="image", fileId=str(fileID))
         record.save()
         try:
             # downloadImage = DownloadImage()
@@ -144,7 +144,7 @@ def detect_by_video(request):
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
         save_path = f"media/{name}_{save_name}/"
-        record = Result(name=name, result=0, detail="下载视频中", comment="", save_path=save_path, time=current_time)
+        record = Result(name=name, result=0, detail="下载视频中", comment="", save_path=save_path, time=current_time, type="video", fileId=str(fileID))
         record.save()
         try:
             data = {
@@ -206,7 +206,9 @@ def history(request):
                 "result": result.result,
                 "time": result.time,
                 "detail": result.detail,
-                "comment": result.comment
+                "comment": result.comment,
+                "type": result.type,
+                "fileId": result.fileId
             } for result in results]
         })
     else:
