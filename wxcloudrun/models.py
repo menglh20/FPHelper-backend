@@ -20,6 +20,8 @@ class Result(models.Model):
     time = models.CharField(max_length=1000)
     type = models.CharField(max_length=50, default="image")
     fileId = models.CharField(max_length=1000, default="")
+    selfish = models.BooleanField(default=True)
+    disabledSide = models.CharField(max_length=100, default="")
 
     def __str__(self):
         return str(self.id) + " " + self.name + " " + str(self.result) + " " + self.time

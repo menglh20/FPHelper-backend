@@ -76,6 +76,8 @@ def detect(request):
         body = json.loads(body_unicode)
         name = body["name"]
         fileID = body["fileID"]
+        selfish = body["selfish"] if "selfish" in body else True
+        disabledSide = body["disabledSide"] if "disabledSide" in body else ""
         logger.info(f"[detect] Detection result: {name}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[detect] User does not exist: {name}")
@@ -87,19 +89,15 @@ def detect(request):
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
         save_path = f"media/{name}_{save_name}/"
-        record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time, type="image", fileId=str(fileID))
+        record = Result(name=name, result=0, detail="获取图片中", comment="", save_path=save_path, time=current_time, type="image", fileId=str(fileID), selfish=selfish, disabledSide=disabledSide)
         record.save()
         try:
-            # downloadImage = DownloadImage()
-            # downloadImage.get(fileID, save_path)
-            # result, detail = detect(save_path)
             data = {
                 'name': name,
                 'fileID': fileID
             }
             response = requests.post("http://123.56.218.127/api/detect/detect/", json=data)
             logger.info(f"[detect] recieve response from http://123.56.218.127/api/detect/detect: " + response.text)
-            # res = response.data
             res = json.loads(response.text)
             result, detail = res["result"], res["detail"]
             record.result = result
@@ -133,6 +131,8 @@ def detect_by_video(request):
         body = json.loads(body_unicode)
         name = body["name"]
         fileID = body["fileID"]
+        selfish = body["selfish"] if "selfish" in body else True
+        disabledSide = body["disabledSide"] if "disabledSide" in body else ""
         logger.info(f"[detect_by_video] Detection result: {name}")
         if not User.objects.filter(name=name).exists():
             logger.info(f"[detect_by_video] User does not exist: {name}")
@@ -144,7 +144,7 @@ def detect_by_video(request):
         current_time = current_time.strftime("%Y.%m.%d %H:%M:%S")
         save_name = current_time.replace(".", "").replace(":", "")
         save_path = f"media/{name}_{save_name}/"
-        record = Result(name=name, result=0, detail="下载视频中", comment="", save_path=save_path, time=current_time, type="video", fileId=str(fileID))
+        record = Result(name=name, result=0, detail="下载视频中", comment="", save_path=save_path, time=current_time, type="video", fileId=str(fileID), selfish=selfish, disabledSide=disabledSide)
         record.save()
         try:
             data = {
@@ -153,7 +153,6 @@ def detect_by_video(request):
             }
             response = requests.post("http://123.56.218.127/api/detect/detect_by_video/", json=data)
             logger.info(f"[detect_by_video] recieve response from http://123.56.218.127/api/detect/detect_by_video: " + response.text)
-            # res = response.data
             res = json.loads(response.text)
             result, detail = res["result"], res["detail"]
             record.result = result
